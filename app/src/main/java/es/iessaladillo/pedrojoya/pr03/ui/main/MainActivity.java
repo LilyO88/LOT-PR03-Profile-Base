@@ -3,6 +3,7 @@ package es.iessaladillo.pedrojoya.pr03.ui.main;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.text.Editable;
+import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -19,6 +20,7 @@ import androidx.core.app.ActivityCompat;
 import es.iessaladillo.pedrojoya.pr03.R;
 import es.iessaladillo.pedrojoya.pr03.data.local.Database;
 import es.iessaladillo.pedrojoya.pr03.data.local.model.Avatar;
+import es.iessaladillo.pedrojoya.pr03.utils.KeyboardUtils;
 import es.iessaladillo.pedrojoya.pr03.utils.ValidationUtils;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
@@ -72,12 +74,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      * Checks if form is valid or not and shows a Snackbar accordingly
      **/
     private void save() {
-        // TODO
         if (!validateAll()) {
             Snackbar.make(constraitLayout, R.string.main_error_saving, Snackbar.LENGTH_LONG).show();
         } else {
             Snackbar.make(constraitLayout, R.string.main_saved_succesfully, Snackbar.LENGTH_LONG).show();
         }
+        KeyboardUtils.hideSoftKeyboard(this);
     }
 
     /**
@@ -117,11 +119,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         imgAvatar.setTag(database.getDefaultAvatar().getImageResId());
         lblAvatar.setTag(database.getDefaultAvatar().getName());
 
-        txtName.addTextChangedListener(new GestorTextWatcher());
-        txtEmail.addTextChangedListener(new GestorTextWatcher());
-        txtPhonenumber.addTextChangedListener(new GestorTextWatcher());
-        txtAddress.addTextChangedListener(new GestorTextWatcher());
-        txtWeb.addTextChangedListener(new GestorTextWatcher());
+        GestorTextWatcher gestorTextWatcher = new GestorTextWatcher();
+
+        txtName.addTextChangedListener(gestorTextWatcher);
+        txtEmail.addTextChangedListener(gestorTextWatcher);
+        txtPhonenumber.addTextChangedListener(gestorTextWatcher);
+        txtAddress.addTextChangedListener(gestorTextWatcher);
+        txtWeb.addTextChangedListener(gestorTextWatcher);
 
         txtWeb.setOnEditorActionListener((v, actionId, event) -> {
             save();
@@ -170,77 +174,59 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void checkName() {
-        if(txtName.getText().toString().isEmpty()) {
-            txtName.setError(getString(R.string.main_invalid_data));
-            lblName.setEnabled(false);
+        if(isValidName(txtName.getText().toString())) {
+            disabledField(txtName, lblName);
         } else {
-            txtName.setError(null);
-            lblName.setEnabled(true);
+            enabledField(txtName, lblName);
         }
     }
 
     private void checkEmail() {
-        if (!ValidationUtils.isValidEmail(txtEmail.getText().toString())
-                || txtEmail.getText().toString().isEmpty()) {
-            txtEmail.setError(getString(R.string.main_invalid_data));
-            imgEmail.setEnabled(false);
-            lblEmail.setEnabled(false);
+        if (!ValidationUtils.isValidEmail(txtEmail.getText().toString())) {
+            disabledFieldImg(txtEmail, imgEmail, lblEmail);
         } else {
-            txtEmail.setError(null);
-            imgEmail.setEnabled(true);
-            lblEmail.setEnabled(true);
+            enabledFieldImg(txtEmail, imgEmail, lblEmail);
         }
     }
 
     private void checkPhonenumber() {
-        if (!ValidationUtils.isValidPhone(txtPhonenumber.getText().toString())
-                || txtPhonenumber.getText().toString().isEmpty()) {
-            txtPhonenumber.setError(getString(R.string.main_invalid_data));
-            imgPhonenumber.setEnabled(false);
-            lblPhonenumber.setEnabled(false);
+        if (!ValidationUtils.isValidPhone(txtPhonenumber.getText().toString())) {
+            disabledFieldImg(txtPhonenumber, imgPhonenumber, lblPhonenumber);
         } else {
-            txtPhonenumber.setError(null);
-            imgPhonenumber.setEnabled(true);
-            lblPhonenumber.setEnabled(true);
+            enabledFieldImg(txtPhonenumber, imgPhonenumber, lblPhonenumber);
         }
     }
 
     private void checkAddress() {
-        if (txtAddress.getText().toString().isEmpty()) {
-            txtAddress.setError(getString(R.string.main_invalid_data));
-            imgAddress.setEnabled(false);
-            lblAddress.setEnabled(false);
+        if (isValidAddress(txtAddress.getText().toString())) {
+            disabledFieldImg(txtAddress, imgAddress, lblAddress);
         } else {
-            txtAddress.setError(null);
-            imgAddress.setEnabled(true);
-            lblAddress.setEnabled(true);
+            enabledFieldImg(txtAddress, imgAddress, lblAddress);
         }
     }
 
     private void checkWeb() {
         if (!ValidationUtils.isValidUrl(txtWeb.getText().toString())
-                || txtWeb.getText().toString().isEmpty()) {
-            txtWeb.setError(getString(R.string.main_invalid_data));
-            imgWeb.setEnabled(false);
-            lblWeb.setEnabled(false);
+                || TextUtils.isEmpty(txtWeb.getText().toString())) {
+            disabledFieldImg(txtWeb, imgWeb, lblWeb);
         } else {
-            txtWeb.setError(null);
-            imgWeb.setEnabled(true);
-            lblWeb.setEnabled(true);
+            enabledFieldImg(txtWeb, imgWeb, lblWeb);
         }
     }
 
     private void checkCurrentView() {
-        if(getCurrentFocus().getId() == txtName.getId()) {
-            checkName();
-        } else if (getCurrentFocus().getId() == txtEmail.getId()) {
-            checkEmail();
-        }  else if (getCurrentFocus().getId() == txtPhonenumber.getId()) {
-            checkPhonenumber();
-        } else if (getCurrentFocus().getId() == txtAddress.getId()) {
-            checkAddress();
-        } else if (getCurrentFocus().getId() == txtWeb.getId()) {
-            checkWeb();
+        if(getCurrentFocus() != null) {
+            if (getCurrentFocus().getId() == txtName.getId()) {
+                checkName();
+            } else if (getCurrentFocus().getId() == txtEmail.getId()) {
+                checkEmail();
+            } else if (getCurrentFocus().getId() == txtPhonenumber.getId()) {
+                checkPhonenumber();
+            } else if (getCurrentFocus().getId() == txtAddress.getId()) {
+                checkAddress();
+            } else if (getCurrentFocus().getId() == txtWeb.getId()) {
+                checkWeb();
+            }
         }
     }
 
@@ -254,12 +240,48 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private boolean validateAll() {
         checkAll();
-        View[] array = new View[]{lblName, lblEmail, lblPhonenumber, lblAddress, lblWeb};
+        View[] array = new View[]{txtName, txtEmail, txtPhonenumber, txtAddress, txtWeb};
         for (View view: array) {
             if(!view.isEnabled()) {
                 return false;
             }
         }
         return true;
+    }
+
+    private boolean isValidName(String name) {
+        if(TextUtils.isEmpty(name)) {
+            return true;
+        }
+        return false;
+    }
+
+    private boolean isValidAddress(String address) {
+        if (TextUtils.isEmpty(address)) {
+            return true;
+        }
+        return false;
+    }
+
+    private void disabledFieldImg(EditText editText, ImageView imageView, TextView textView) {
+        editText.setError(getString(R.string.main_invalid_data));
+        imageView.setEnabled(false);
+        textView.setEnabled(false);
+    }
+
+    private void enabledFieldImg(EditText editText, ImageView imageView, TextView textView) {
+        editText.setError(null);
+        imageView.setEnabled(true);
+        textView.setEnabled(true);
+    }
+
+    private void disabledField(EditText editText, TextView textView) {
+        editText.setError(getString(R.string.main_invalid_data));
+        textView.setEnabled(false);
+    }
+
+    private void enabledField(EditText editText, TextView textView) {
+        editText.setError(null);
+        textView.setEnabled(true);
     }
 }
