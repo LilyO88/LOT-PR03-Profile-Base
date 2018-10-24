@@ -6,11 +6,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <!-- TODO
-    Use android:tint="@color/color_state_selector" in ImageViews corresponding to Icons
-    Use android:textColor="@color/color_state_selector" in TextViews acting as labels.
-    -->
-
     <ImageView
         android:id="@+id/imgAvatar"
         android:layout_width="0dp"

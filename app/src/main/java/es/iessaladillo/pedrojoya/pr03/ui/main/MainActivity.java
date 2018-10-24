@@ -50,7 +50,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         initViews();
-        // TODO
     }
 
     // DO NOT TOUCH
@@ -174,7 +173,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void checkName() {
-        if(isValidName(txtName.getText().toString())) {
+        if(!isValidName(txtName.getText().toString())) {
             disabledField(txtName, lblName);
         } else {
             enabledField(txtName, lblName);
@@ -198,7 +197,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void checkAddress() {
-        if (isValidAddress(txtAddress.getText().toString())) {
+        if (!isValidAddress(txtAddress.getText().toString())) {
             disabledFieldImg(txtAddress, imgAddress, lblAddress);
         } else {
             enabledFieldImg(txtAddress, imgAddress, lblAddress);
@@ -240,7 +239,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private boolean validateAll() {
         checkAll();
-        View[] array = new View[]{txtName, txtEmail, txtPhonenumber, txtAddress, txtWeb};
+        View[] array = new View[]{lblName, lblEmail, lblPhonenumber, lblAddress, lblWeb};
         for (View view: array) {
             if(!view.isEnabled()) {
                 return false;
@@ -250,17 +249,23 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private boolean isValidName(String name) {
-        if(TextUtils.isEmpty(name)) {
+        return !TextUtils.isEmpty(name);
+
+        /* Es lo mismo que arriba pero simplicado
+        if(!TextUtils.isEmpty(name)) {
             return true;
         }
-        return false;
+        return false;*/
     }
 
     private boolean isValidAddress(String address) {
-        if (TextUtils.isEmpty(address)) {
+        return !TextUtils.isEmpty(address);
+
+        /* Es lo mismo que arriba pero simplificado
+        if (!TextUtils.isEmpty(address)) {
             return true;
         }
-        return false;
+        return false;*/
     }
 
     private void disabledFieldImg(EditText editText, ImageView imageView, TextView textView) {
